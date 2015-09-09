@@ -1,0 +1,22 @@
+{
+  "name": "coverletter-composer",
+  "version": "0.0.1",
+  "description": "A set of Gulp tasks to compose and upload application packages sent to prospective employers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Coaxial/coverletter-composer"
+  },
+  "author": "Coaxial",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Coaxial/coverletter-composer/issues"
+  },
+  "homepage": "https://github.com/Coaxial/coverletter-composer",
+  "devDependencies": {
+    "gulp": "^3.9.0"
+  }
+}
