@@ -4,7 +4,7 @@
   "description": "A set of Gulp tasks to compose and upload application packages sent to prospective employers",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp mocha"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/Coaxial/coverletter-composer",
   "devDependencies": {
-    "gulp": "^3.9.0"
+    "chai": "^3.2.0",
+    "gulp": "^3.9.0",
+    "gulp-mocha": "^2.1.3",
+    "gulp-util": "^3.0.6",
+    "mocha": "^2.3.2"
   }
 }
