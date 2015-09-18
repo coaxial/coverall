@@ -1,0 +1,4 @@
+{
+  "s3_bucket": "test-bucket",
+  "s3_region": "test-region-1"
+}
