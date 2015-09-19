@@ -4,19 +4,24 @@ var Package = require('../lib/package');
 var async = require('async');
 
 describe('Package', function() {
+  var valid_config = {
+    recipient: 'Test',
+    files: {
+      fileA: 'test/fixtures/fileA.test',
+      fileB: 'test/fixtures/fileB.test'
+    },
+    config_files: {
+      config: 'test/fixtures/config.json',
+      secrets: 'test/fixtures/secrets.json'
+    }
+  };
+
   describe('#constructor', function() {
     it('should create new package when passed a valid config', function() {
-      var config = {
-        recipient: 'Example',
-        files: {
-          fileA: 'test/fixtures/fileA.test',
-          fileB: 'test/fixtures/fileB.test'
-        }
-      };
-      var subject = new Package(config);
+      var subject = new Package(valid_config);
 
-      expect(subject).to.have.property('recipient', config.recipient);
-      expect(subject).to.have.property('files', config.files);
+      expect(subject).to.have.property('recipient', valid_config.recipient);
+      expect(subject).to.have.property('files', valid_config.files);
     });
 
     it('should throw with no config', function() {
@@ -49,29 +54,33 @@ describe('Package', function() {
 
   describe('#init', function() {
     var test_package;
-    var fixture = {};
-    fixture.file_path = 'test/fixtures/config.json';
-    var config = {
-      recipient: 'Test',
-      files: {
-        fileA: 'test/fixtures/fileA.test',
-        fileB: 'test/fixtures/fileB.test'
-      },
-      config_file: fixture.file_path
+    var fixture = {
+      config_file_path: valid_config.config_files.config
     };
+    // fixture.config_file_path = 'test/fixtures/config.json';
+    // var config = {
+    //   recipient: 'Test',
+    //   files: {
+    //     fileA: 'test/fixtures/fileA.test',
+    //     fileB: 'test/fixtures/fileB.test'
+    //   },
+    //   config_files: {
+    //     config: fixture.config_file_path
+    //   }
+    // };
 
 
     beforeEach(function(done) {
       async.parallel({
         loadFixture: function(next) {
-          fs.readFile(fixture.file_path, function(err, data) {
+          fs.readFile(fixture.config_file_path, function(err, data) {
             if (err) return done(err);
-            fixture.data = JSON.parse(data);
+            fixture.config_data = JSON.parse(data);
             next();
           });
         },
         instantiatePkg: function(next) {
-          test_package = new Package(config);
+          test_package = new Package(valid_config);
           next();
         },
         initPkg: function(next) {
@@ -86,15 +95,15 @@ describe('Package', function() {
       });
     });
 
-    it("shouldn't explode if initialized more than once", function() {
+    it('should handle being initialized more than once', function() {
       test_package.init(function(err, pkg) {
         if (err) return done(err);
-        expect(pkg.config).to.deep.equal(fixture.data);
+        expect(pkg.config).to.deep.equal(fixture.config_data);
       });
     });
 
     it('should populate self.config', function() {
-      expect(test_package.config).to.deep.equal(fixture.data);
+      expect(test_package.config).to.deep.equal(fixture.config_data);
     });
 
     it('should populate self.long_url', function() {
@@ -103,6 +112,10 @@ describe('Package', function() {
 
     it('should populate self.name', function() {
       expect(test_package.name).to.eq('test_0790fe');
+    });
+
+    it('should populate self.short_url', function() {
+      expect(test_package.short_url).to.eq('http://bit.ly/1Kp38KC');
     });
   });
 
@@ -116,6 +129,10 @@ describe('Package', function() {
         files: {
           fileA: 'test/fixtures/fileA.test',
           fileB: 'test/fixtures/fileB.test'
+        },
+        config_files: {
+          config: 'test/fixtures/config.json',
+          secrets: 'test/fixtures/secrets.json'
         }
       };
 

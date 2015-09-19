@@ -2,7 +2,7 @@ var fs = require('fs');
 
 module.exports = {
   // Returns a parsed JSON with the contents of json_file. Default config file is `config.json`
-  get_config: function(json_file, done) {
+  parseJson: function(json_file, done) {
     // json_file is optional
     if (typeof(json_file) === 'function') {
       done = json_file;
