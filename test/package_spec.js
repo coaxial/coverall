@@ -38,17 +38,17 @@ describe('Package', function() {
     });
 
     it('should throw with an incomplete config', function() {
-      var config = { recipient: 'Test' };
-      var subject = function() { new Package(config); };
+      var incomplete_config = { recipient: 'Test' };
+      var subject = function() { new Package(incomplete_config); };
       
       expect(subject).to.throw(Error, /missing/i);
     });
 
     it('should throw with a bad config.files', function() {
-      var config = { recipient: 'Test', files: 'invalid' };
-      var subject = function() { new Package(config); };
+      var invalid_config = { recipient: 'Test', files: 'invalid' };
+      var subject = function() { new Package(invalid_config); };
 
-      expect(subject).to.throw(TypeError, /not a string/i);
+      expect(subject).to.throw(TypeError);
     });
   });
 
@@ -57,18 +57,6 @@ describe('Package', function() {
     var fixture = {
       config_file_path: valid_config.config_files.config
     };
-    // fixture.config_file_path = 'test/fixtures/config.json';
-    // var config = {
-    //   recipient: 'Test',
-    //   files: {
-    //     fileA: 'test/fixtures/fileA.test',
-    //     fileB: 'test/fixtures/fileB.test'
-    //   },
-    //   config_files: {
-    //     config: fixture.config_file_path
-    //   }
-    // };
-
 
     beforeEach(function(done) {
       async.parallel({
