@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var gutil = require('gulp-util');
 var jshint = require('gulp-jshint');
+var console = require('better-console');
 
 gulp.task('mocha', ['lint'], function() {
   return gulp.src(['test/**/*.js'], {read: false})
@@ -12,8 +13,12 @@ gulp.task('dev', function() {
   gulp.watch(['lib/**', 'helpers/**', 'test/**', 'index.js'], ['mocha'], {read: false});
 });
 
-gulp.task('lint', function() {
+gulp.task('lint', ['clear-console'], function() {
   return gulp.src(['lib/**/*.js', 'helpers/**/*.js', 'test/**/*.js', 'index.js'])
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'));
+});
+
+gulp.task('clear-console', function() {
+  return console.clear();
 });

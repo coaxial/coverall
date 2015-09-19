@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Coaxial/coverletter-composer",
   "devDependencies": {
+    "better-console": "^0.2.4",
     "chai": "^3.2.0",
     "gulp": "^3.9.0",
     "gulp-jshint": "^1.11.2",
