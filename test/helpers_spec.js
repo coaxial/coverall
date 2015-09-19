@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
 var fs = require('fs');
-var helpers = require('../helpers');
+var helpers = require('../lib/helpers');
 
 describe('Helpers', function() {
   describe('#getConfig', function() {
