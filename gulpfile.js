@@ -5,7 +5,7 @@ var jshint = require('gulp-jshint');
 var console = require('better-console');
 
 gulp.task('mocha', ['lint'], function() {
-  return gulp.src(['test/**/*.js'], {read: false})
+  return gulp.src(['test/**/*_spec.js'], {read: false})
     .pipe(mocha({ reporter: 'list' }));
 });
 
