@@ -16,14 +16,18 @@ gulp.task('mocha', function() {
     .pipe(mocha({ reporter: mocha_reporter }));
 });
 
-gulp.task('mocha-istanbul', function(cb) {
+gulp.task('cov', function(cb) {
   gulp.src(every_js_file)
     .pipe(istanbul({ includeUntested: true }))
     .pipe(istanbul.hookRequire())
     .on('finish', function () {
       gulp.src(spec_files)
-        .pipe(mocha({ reporter: mocha_reporter }))
-        .pipe(istanbul.writeReports( { reporters: ['html', 'text'] }))
+        .pipe(mocha({ reporter: 'dot' }))
+        .on('error', function(err) {
+          console.log('Error in tests, not checking coverage.');
+          cb(err);
+        })
+        .pipe(istanbul.writeReports( { reporters: ['html', 'text', 'text-summary'] }))
         .on('end', cb);
     });
 });
@@ -46,7 +50,7 @@ gulp.task('clear-console', function() {
 gulp.task('test', function(cb) {
   runSequence('clear-console',
               'lint',
-              'mocha-istanbul',
+              'mocha',
               cb);
 });
 
