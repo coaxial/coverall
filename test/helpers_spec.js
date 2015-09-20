@@ -3,7 +3,7 @@ var fs = require('fs');
 var helpers = require('../lib/helpers');
 
 describe('Helpers', function() {
-  describe('#getConfig', function() {
+  describe('#parseJson', function() {
     var fixture;
     var test_config_file_path;
 
@@ -16,7 +16,7 @@ describe('Helpers', function() {
       });
     });
 
-    it('should return the config file as a JSON object', function(done) {
+    it('returns the config file as a JSON object', function(done) {
       helpers.parseJson(test_config_file_path, function(err, json) {
         if (err) return done(err);
         expect(json).to.deep.equal(fixture);
