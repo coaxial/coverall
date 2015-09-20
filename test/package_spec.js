@@ -89,7 +89,7 @@ describe('Package', function() {
     };
 
     beforeEach(function(done) {
-      // Prevent writing url.tex for tests to avoid cluttering
+      // Prevent writing url.tex during tests to avoid cluttering
       var fsMock = {
         writeFile: function(file_name, contents, done) {
           return done(null);

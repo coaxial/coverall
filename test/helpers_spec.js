@@ -9,6 +9,7 @@ describe('Helpers', function() {
 
     before(function(done) {
       test_config_file_path = 'test/fixtures/config.json';
+      // Parse fixture
       fs.readFile(test_config_file_path, function(err, data) {
         if (err) return done(err);
         fixture = JSON.parse(data);
