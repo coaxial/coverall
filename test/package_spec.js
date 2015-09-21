@@ -18,7 +18,8 @@ describe('Package', function() {
     }
   };
 
-  var SHORT_URL = 'http://bit.ly/1Kp38KC';
+  var SHORT_URL = 'http://bit.ly/1V5mTM2';
+  var PACKAGE_NAME = 'test_0790feebb1';
 
   describe('Constructor', function() {
     it("doesn't throw with a valid config", function() {
@@ -138,11 +139,13 @@ describe('Package', function() {
     });
 
     it('populates self.long_url', function() {
-      expect(test_package.long_url).to.eq('https://test-bucket.s3.amazonaws.com/test_0790fe.tar.gz');
+      var long_url = 'https://test-bucket.s3.amazonaws.com/' + PACKAGE_NAME + '.tar.gz';
+
+      expect(test_package.long_url).to.eq(long_url);
     });
 
     it('populates self.name', function() {
-      expect(test_package.name).to.eq('test_0790fe');
+      expect(test_package.name).to.eq(PACKAGE_NAME);
     });
 
     it('populates self.short_url', function() {
