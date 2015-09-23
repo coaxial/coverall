@@ -5,6 +5,7 @@ var rewire = require('rewire');
 var Package = rewire('../lib/package');
 var async = require('async');
 var _ = require('lodash');
+var path = require('path');
 
 describe('Package', function() {
   var valid_config = {
@@ -210,7 +211,7 @@ describe('Package', function() {
     });
   });
 
-  describe('#compile', function() {
+  describe('#make', function() {
 
     afterEach(function() {
       revert.fswriteFile();
@@ -226,15 +227,21 @@ describe('Package', function() {
 
       it('populates self.compiled_files', function(done) {
         var execMock = function(cmd, opt, cb) {
+          // the options to exec are optional
+          if (!cb) {
+            cb = opt;
+            opt = {};
+          }
           return cb(null);
         };
         revert.exec = Package.__set__('exec', execMock);
 
-        subject.compile(function(err) {
+        subject.make(function(err) {
           if (err) return done(err);
           expect(subject.compiled_files).to.deep.equal({
-            letter: 'test/fixtures/fileA.pdf',
-            resume: 'test/fixtures/fileB.pdf'
+            letter: path.parse('test/fixtures/fileA.pdf'),
+            resume: path.parse('test/fixtures/fileB.pdf'),
+            package: path.parse('test/fixtures/test.pdf')
           });
           revert.exec();
           done(null);
@@ -265,12 +272,17 @@ describe('Package', function() {
         it('does not re-generate them', function(done) {
           var exec_not_called = true; // will fail test if the mock isn't run
           var execMock = function(cmd, opt, cb) {
-            exec_not_called = false;
+            // the options to exec are optional
+            if (!cb) {
+              cb = opt;
+              opt = {};
+            }
+            if (cmd.match(/^pdflatex/)) exec_not_called = false;
             return cb(null);
           };
           revert.exec = Package.__set__('exec', execMock);
 
-          subject.compile(function(err) {
+          subject.make(function(err) {
             revert.exec();
             if (err) return done(err);
             expect(exec_not_called).to.eq(true);
@@ -300,12 +312,17 @@ describe('Package', function() {
         it('regenerates them', function(done) {
           var exec_called = false;
           var execMock = function(cmd, opt, cb) {
-            exec_called = true;
+            // the options to exec are optional
+            if (!cb) {
+              cb = opt;
+              opt = {};
+            }
+            if (cmd.match(/^pdflatex/)) exec_called = true;
             return cb(null);
           };
           revert.exec = Package.__set__('exec', execMock);
 
-          subject.compile(function(err) {
+          subject.make(function(err) {
             revert.exec();
             if (err) return done(err);
             expect(exec_called).to.eq(true);
