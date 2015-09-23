@@ -1,3 +1,4 @@
+/*eslint-env mocha */
 var expect = require('chai').expect;
 var fs = require('fs');
 var helpers = require('../lib/helpers');
