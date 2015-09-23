@@ -1,3 +1,4 @@
+/*eslint-env mocha */
 var expect = require('chai').expect;
 var fs = require('fs');
 var rewire = require('rewire');
@@ -17,9 +18,25 @@ describe('Package', function() {
       secrets: 'test/fixtures/secrets.json'
     }
   };
+  var revert = {};
+  // Don't clutter the disk during tests
+  var fsMock = {
+    writeFile: function(file_name, contents, cb) {
+      return cb(null);
+    }
+  };
 
   var SHORT_URL = 'http://bit.ly/1V5mTM2';
-  var PACKAGE_NAME = 'test_0790feebb1';
+  var PACKAGE_NAME = 'test_0790feebb1'
+
+  beforeEach(function() {
+    revert.fswriteFile = Package.__set__('fs.writeFile', fsMock.writeFile);
+  });
+
+  afterEach(function() {
+    revert.fswriteFile();
+    revert = {};
+  });
 
   describe('Constructor', function() {
     it("doesn't throw with a valid config", function() {
@@ -111,12 +128,12 @@ describe('Package', function() {
           next();
         },
         initPkg: function(next) {
-          test_package.init(function(err, pkg) {
+          test_package.init(function(err) {
             if (err) return done(err);
             next();
           });
         }
-      }, function(err, result) {
+      }, function(err) {
         if (err) return done(err);
         done();
       });
@@ -127,10 +144,11 @@ describe('Package', function() {
       revert();
     });
 
-    it('handles being initialized more than once', function() {
+    it('handles being initialized more than once', function(done) {
       test_package.init(function(err, pkg) {
         if (err) return done(err);
         expect(pkg.config).to.deep.equal(fixture.config_data);
+        done();
       });
     });
 
@@ -158,11 +176,11 @@ describe('Package', function() {
           var latex_string = '\\url{' + SHORT_URL + '}';
           expect(contents).to.eq(latex_string);
           done(null);
-        },
+        }
       };
 
       var revert = Package.__set__('fs.writeFile', fsMock.writeFile);
-      test_package.init(function(err, pkg) {
+      test_package.init(function(err) {
         revert();
         if (err) return done(err);
         done(null);
@@ -171,7 +189,6 @@ describe('Package', function() {
   });
 
   describe('self.name', function() {
-    var config;
     var subject;
 
     beforeEach(function(done) {
@@ -190,6 +207,112 @@ describe('Package', function() {
     it('contains a 6 chars hash', function() {
       var hash_regex = /[a-f0-9]{6}/;
       expect(subject.name).to.match(hash_regex);
+    });
+  });
+
+  describe('#compile', function() {
+
+    afterEach(function() {
+      revert.fswriteFile();
+    });
+
+    context('with existing tex files', function() {
+      var subject;
+
+      beforeEach(function(done) {
+        subject = new Package(valid_config);
+        subject.init(done);
+      });
+
+      it('populates self.compiled_files', function(done) {
+        var execMock = function(cmd, opt, cb) {
+          return cb(null);
+        };
+        revert.exec = Package.__set__('exec', execMock);
+
+        subject.compile(function(err) {
+          if (err) return done(err);
+          expect(subject.compiled_files).to.deep.equal({
+            letter: 'test/fixtures/fileA.pdf',
+            resume: 'test/fixtures/fileB.pdf'
+          });
+          revert.exec();
+          done(null);
+        });
+      });
+
+      context('when artifacts are newer', function() {
+        var subject;
+
+        beforeEach(function(done) {
+          var a_while_ago = new Date(1986, 7, 25, 0, 30);
+          var now = new Date(Date.now());
+          fsMock.stat = function(file, cb) {
+            // ensures that the artifact is always newer than the code
+            if (file.match(/.*\.pdf/)) return cb(null, { mtime: now });
+            return cb(null, { mtime: a_while_ago });
+          };
+          revert.fsWriteFile = Package.__set__('fs.writeFile', fsMock.writeFile);
+          revert.fsStat = Package.__set__('fs.stat', fsMock.stat);
+          subject = new Package(valid_config);
+          subject.init(done);
+        });
+        
+        afterEach(function() {
+          revert.fsStat();
+        });
+
+        it('does not re-generate them', function(done) {
+          var exec_not_called = true; // will fail test if the mock isn't run
+          var execMock = function(cmd, opt, cb) {
+            exec_not_called = false;
+            return cb(null);
+          };
+          revert.exec = Package.__set__('exec', execMock);
+
+          subject.compile(function(err) {
+            revert.exec();
+            if (err) return done(err);
+            expect(exec_not_called).to.eq(true);
+            done();
+          });
+        });
+      });
+
+      context('when artifacts are older', function() {
+        beforeEach(function(done) {
+          var a_while_ago = new Date(1986, 7, 25, 0, 30);
+          var now = new Date(Date.now());
+          fsMock.stat = function(file, cb) {
+            // ensures the code is always newer than the artifacact
+            if (file.match(/.*\.pdf/)) return cb(null, { mtime: a_while_ago });
+            return cb(null, { mtime: now });
+          };
+          revert.fsStat = Package.__set__('fs.stat', fsMock.stat);
+          subject = new Package(valid_config);
+          subject.init(done);
+        });
+
+        afterEach(function() {
+          revert.fsStat();
+        });
+
+        it('regenerates them', function(done) {
+          var exec_called = false;
+          var execMock = function(cmd, opt, cb) {
+            exec_called = true;
+            return cb(null);
+          };
+          revert.exec = Package.__set__('exec', execMock);
+
+          subject.compile(function(err) {
+            revert.exec();
+            if (err) return done(err);
+            expect(exec_called).to.eq(true);
+            done();
+          });
+        });
+      });
     });
   });
 });
