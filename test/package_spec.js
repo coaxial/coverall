@@ -7,6 +7,7 @@ var async = require('async');
 var _ = require('lodash');
 var path = require('path');
 
+
 describe('Package', function() {
   var valid_config = {
     recipient: 'Test',
@@ -34,9 +35,13 @@ describe('Package', function() {
     revert.fswriteFile = Package.__set__('fs.writeFile', fsMock.writeFile);
   });
 
-  afterEach(function() {
-    revert.fswriteFile();
-    revert = {};
+  afterEach(function(done) {
+    // Reverts every mock so they don't have to be manually reverted every time
+    async.forEachOf(revert, function(revert_mock, mock_name, next) {
+      revert_mock();
+      delete revert[mock_name];
+      next();
+    }, done);
   });
 
   describe('Constructor', function() {
@@ -213,10 +218,6 @@ describe('Package', function() {
 
   describe('#make', function() {
 
-    afterEach(function() {
-      revert.fswriteFile();
-    });
-
     context('with existing tex files', function() {
       var subject;
 
@@ -239,11 +240,10 @@ describe('Package', function() {
         subject.make(function(err) {
           if (err) return done(err);
           expect(subject.compiled_files).to.deep.equal({
-            letter: path.parse('test/fixtures/fileA.pdf'),
-            resume: path.parse('test/fixtures/fileB.pdf'),
-            package: path.parse('test/fixtures/test.pdf')
+            letter: 'test/fixtures/fileA.pdf',
+            resume: 'test/fixtures/fileB.pdf',
+            package: 'test/fixtures/test.pdf'
           });
-          revert.exec();
           done(null);
         });
       });
@@ -264,10 +264,6 @@ describe('Package', function() {
           subject = new Package(valid_config);
           subject.init(done);
         });
-        
-        afterEach(function() {
-          revert.fsStat();
-        });
 
         it('does not re-generate them', function(done) {
           var exec_not_called = true; // will fail test if the mock isn't run
@@ -283,7 +279,6 @@ describe('Package', function() {
           revert.exec = Package.__set__('exec', execMock);
 
           subject.make(function(err) {
-            revert.exec();
             if (err) return done(err);
             expect(exec_not_called).to.eq(true);
             done();
@@ -305,10 +300,6 @@ describe('Package', function() {
           subject.init(done);
         });
 
-        afterEach(function() {
-          revert.fsStat();
-        });
-
         it('regenerates them', function(done) {
           var exec_called = false;
           var execMock = function(cmd, opt, cb) {
@@ -323,11 +314,37 @@ describe('Package', function() {
           revert.exec = Package.__set__('exec', execMock);
 
           subject.make(function(err) {
-            revert.exec();
             if (err) return done(err);
             expect(exec_called).to.eq(true);
             done();
           });
+        });
+      });
+
+      it('merges the letter and resume into one file', function(done) {
+        var gs_cmd_string;
+        var execMock = function(cmd, opt, cb) {
+          if (!cb) {
+            cb = opt;
+            opt = {};
+          }
+          // ignore when exec runs for pdflatex
+          if (cmd.match(/^gs/)) {
+            gs_cmd_string = cmd;
+          }
+          return cb(null);
+        };
+
+        revert.execMock = Package.__set__('exec', execMock);
+        var output_file_path = path.resolve('test/fixtures/test.pdf');
+        var letter_file_path = path.resolve('test/fixtures/fileA.pdf');
+        var resume_file_path = path.resolve('test/fixtures/fileB.pdf');
+        var expected_gs_cmd_string = 'gs -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=' + output_file_path + ' ' + letter_file_path + ' ' + resume_file_path;
+
+        subject.make(function(err) {
+          if (err) return done(err);
+          expect(gs_cmd_string).to.eq(expected_gs_cmd_string);
+          done();
         });
       });
     });
