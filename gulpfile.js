@@ -8,7 +8,7 @@ var istanbul = require('gulp-istanbul');
 var insert = require('gulp-insert');
 
 var spec_files = ['test/**/*_spec.js'];
-var every_js_file = ['lib/**/*.js', 'helpers/**/*.js', 'test/**/*.js', 'index.js'];
+var every_js_file = ['lib/**/*.js', 'helpers/**/*.js', 'index.js'];
 var coverage_report_dir = 'test/coverage';
 var mocha_reporter = 'list';
 var eslint_mocha_header = '/*eslint-env mocha */\n';
@@ -35,7 +35,8 @@ gulp.task('cov', function(cb) {
 });
 
 gulp.task('dev', function() {
-  gulp.watch(every_js_file, ['test'], { read: false });
+  var files = every_js_file.concat(spec_files);
+  gulp.watch(files, ['test'], { read: false });
 });
 
 gulp.task('lint', ['eslint-add-mocha-headers'], function(cb) {
