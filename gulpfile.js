@@ -40,7 +40,7 @@ gulp.task('dev', function() {
 
 gulp.task('lint', ['eslint-add-mocha-headers'], function(cb) {
   return gulp.src(every_js_file)
-    .pipe(eslint())
+    .pipe(eslint({ useEslintrc: true }))
     .pipe(eslint.format())
     cb(err);
 });
