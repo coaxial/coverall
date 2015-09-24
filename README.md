@@ -232,11 +232,19 @@ A SHA1 hash ensures that a given package for a given recipient will have the sam
 The hash is based on the source tex files' code, this allows for a new archive to be uploaded and a new short link to
 be generated should I update the contents. Appending the hash in the archive's name mitigates the probability of
 success for fishing around and hitting a valid URL. It is somewhat security by obscurity but it trumps protecting the
-archive with a password that would make it harder to use from a paper letter in my opinion.
+archive with a password, which would make it harder to use from a paper letter in my opinion.
+
+##### `Package#make`
+
+This method compiles the tex files to PDF and merges all the documents into one. I implemented the merge feature so
+the files are easier to organize for printing with one package all consolidated under one PDF file.
 
 ## Testing
 
 Run the gulp task `gulp test` to run the test suite. To see test coverage and run the test suite: `gulp cov`.
+
+Tests use [nock](github.com/pgte/nock) for mocking the Bitly API. There should be no need to update fixtures as
+Bitly's API is versioned.
 
 ## License
 
