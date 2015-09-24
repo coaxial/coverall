@@ -6,7 +6,7 @@ var Package = rewire('../lib/package');
 var async = require('async');
 var _ = require('lodash');
 var path = require('path');
-
+var nock = require('nock');
 
 describe('Package', function() {
   var valid_config = {
@@ -30,6 +30,25 @@ describe('Package', function() {
 
   var SHORT_URL = 'http://bit.ly/1V5mTM2';
   var PACKAGE_NAME = 'test_0790feebb1'
+
+  var bitly_host = 'https://api-ssl.bitly.com:443';
+  var bitly_endpoints = {
+    shorten: '/v3/shorten',
+    link_edit: '/v3/user/link_edit'
+  };
+  var bitly_fixtures = {
+    shorten: 'test/fixtures/bitly_com_shorten.json',
+    link_edit: 'test/fixtures/bitly_com_link_edit.json'
+  };
+
+  nock(bitly_host)
+    .persist()
+    .get(bitly_endpoints.shorten)
+    .query(true)
+    .replyWithFile(200, bitly_fixtures.shorten)
+    .get(bitly_endpoints.link_edit)
+    .query(true)
+    .replyWithFile(200, bitly_fixtures.link_edit)
 
   beforeEach(function() {
     revert.fswriteFile = Package.__set__('fs.writeFile', fsMock.writeFile);

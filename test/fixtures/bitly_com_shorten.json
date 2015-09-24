@@ -1,0 +1,11 @@
+{
+    "status_code": 200,
+    "status_txt": "OK",
+    "data": {
+      "long_url": "https://test-bucket.s3.amazonaws.com/test_0790feebb1.tar.gz",
+      "url": "http://bit.ly/1V5mTM2",
+      "hash": "1V5mTM2",
+      "global_hash": "1V5mTM3",
+      "new_hash": 1
+    }
+}
