@@ -8,7 +8,8 @@ var istanbul = require('gulp-istanbul');
 var insert = require('gulp-insert');
 
 var spec_files = ['test/**/*_spec.js'];
-var every_js_file = ['lib/**/*.js', 'helpers/**/*.js', 'index.js'];
+var code_files = ['lib/**/*.js', 'helpers/**/*.js', 'index.js'];
+var all_files = spec_files.concat(code_files);
 var coverage_report_dir = 'test/coverage';
 var mocha_reporter = 'list';
 var eslint_mocha_header = '/*eslint-env mocha */\n';
@@ -19,7 +20,7 @@ gulp.task('mocha', function() {
 });
 
 gulp.task('cov', function(cb) {
-  gulp.src(every_js_file)
+  gulp.src(code_files)
     .pipe(istanbul({ includeUntested: true }))
     .pipe(istanbul.hookRequire())
     .on('finish', function () {
@@ -35,12 +36,11 @@ gulp.task('cov', function(cb) {
 });
 
 gulp.task('dev', function() {
-  var files = every_js_file.concat(spec_files);
-  gulp.watch(files, ['test'], { read: false });
+  gulp.watch(all_files, ['test'], { read: false });
 });
 
 gulp.task('lint', ['eslint-add-mocha-headers'], function(cb) {
-  return gulp.src(every_js_file)
+  return gulp.src(all_files)
     .pipe(eslint({ useEslintrc: true }))
     .pipe(eslint.format())
     cb(err);
