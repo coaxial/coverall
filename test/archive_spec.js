@@ -3,7 +3,6 @@ var chai = require('chai');
 var chaiAsPromised = require("chai-as-promised");
 var expect = chai.expect;
 var Promise = require('bluebird');
-Promise.longStackTraces();
 var Archive = require('../lib/archive');
 var path = require('path');
 var fs = Promise.promisifyAll(require('fs-extra'));
