@@ -2,6 +2,8 @@
 
 > Snail mail job applications for the internet-age, saving Canada Post one stamp at a time.
 
+*Notice: this is a work in progress*
+
 ## What is Coverall?
 
 Coverall is a NodeJS app for generating application packages to be sent to prospective employers via good old
