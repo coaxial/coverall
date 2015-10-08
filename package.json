@@ -36,6 +36,7 @@
     "async": "^1.4.2",
     "aws-sdk": "^2.2.6",
     "bitly": "^3.0.1",
+    "bluebird": "^2.10.2",
     "change-case": "^2.3.0",
     "lodash": "^3.10.1"
   }
