@@ -7,9 +7,10 @@ var runSequence = require('run-sequence');
 var istanbul = require('gulp-istanbul');
 var insert = require('gulp-insert');
 
-var spec_files = ['test/**/*_spec.js'];
+var spec_files = 'test/**/*_spec.js';
+var integration_files = 'test/**/*_integration.js';
 var code_files = ['lib/**/*.js', 'helpers/**/*.js', 'index.js'];
-var all_files = spec_files.concat(code_files);
+var all_files = code_files.concat(spec_files, integration_files);
 var coverage_report_dir = 'test/coverage';
 var mocha_reporter = 'list';
 var eslint_mocha_header = '/*eslint-env mocha */\n';
@@ -20,11 +21,11 @@ gulp.task('mocha', function() {
 });
 
 gulp.task('cov', function(cb) {
-  gulp.src(code_files)
+  return gulp.src(code_files)
     .pipe(istanbul({ includeUntested: true }))
     .pipe(istanbul.hookRequire())
     .on('finish', function () {
-      gulp.src(spec_files)
+      gulp.src([spec_files, integration_files])
         .pipe(mocha({ reporter: 'dot' }))
         .on('error', function(err) {
           console.log('Error in tests, not checking coverage.');
@@ -36,7 +37,7 @@ gulp.task('cov', function(cb) {
 });
 
 gulp.task('dev', function() {
-  gulp.watch(all_files, ['test'], { read: false });
+  return gulp.watch(all_files, ['test'], { read: false });
 });
 
 gulp.task('lint', ['eslint-add-mocha-headers'], function(cb) {
@@ -66,7 +67,7 @@ gulp.task('eslint-add-mocha-headers', function(cb) {
 });
 
 gulp.task('test', function(cb) {
-  runSequence('clear-console',
+  return runSequence('clear-console',
               'lint',
               'mocha',
               cb);
