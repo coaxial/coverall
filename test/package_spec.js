@@ -4,7 +4,6 @@ var fs = require('fs');
 var rewire = require('rewire');
 var Package = rewire('../lib/package');
 var async = require('async');
-var _ = require('lodash');
 var path = require('path');
 var nock = require('nock');
 
@@ -61,67 +60,6 @@ describe('Package', function() {
       delete revert[mock_name];
       next();
     }, done);
-  });
-
-  describe('Constructor', function() {
-    it("doesn't throw with a valid config", function() {
-      var subject = function() { new Package(valid_config); };
-
-      expect(subject).to.not.throw();
-    });
-
-    it('creates new package when passed a valid config', function() {
-      var subject = new Package(valid_config);
-
-      expect(subject).to.have.property('recipient', valid_config.recipient);
-      expect(subject).to.have.property('files', valid_config.files);
-    });
-
-    it('throws with no config', function() {
-      var subject = function() { new Package(); };
-
-      expect(subject).to.throw(TypeError, /invalid or empty/i);
-    });
-
-    it('throws without an object as config', function() {
-      var config = 'invalid';
-      var subject = function() { new Package(config); };
-      
-      expect(subject).to.throw(TypeError, /invalid or empty/i);
-    });
-
-    it("throws when config.files doesn't have letter and resume properties", function() {
-      var config = _.cloneDeep(valid_config);
-      config.files = {
-        foo: 'test/fixtures/fileA.test',
-        bar: 'test/fixtures/fileB.test'
-      };
-      var subject = function() { new Package(config); };
-
-      expect(subject).to.throw(Error);
-    });
-
-    it("throws when config.files.letter isn't a string", function() {
-      var config = _.cloneDeep(valid_config);
-      config.files.letter = ['test/fixtures/fileA.test'];
-      var subject = function() { new Package(config); };
-
-      expect(subject).to.throw(Error);
-    });
-
-    it('throws with an incomplete config', function() {
-      var incomplete_config = { recipient: 'Test' };
-      var subject = function() { new Package(incomplete_config); };
-      
-      expect(subject).to.throw(Error, /missing/i);
-    });
-
-    it('throws with a bad config.files', function() {
-      var invalid_config = { recipient: 'Test', files: 'invalid' };
-      var subject = function() { new Package(invalid_config); };
-
-      expect(subject).to.throw(TypeError);
-    });
   });
 
   describe('#init', function() {
