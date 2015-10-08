@@ -26,25 +26,26 @@ describe('Archive', function() {
       },
       compiled_files: {
         package: '../coverall_documents/coverletters/test/test.pdf'
-      }
+      },
+      long_url: 'https://example-bucket.s3.amazonaws.com/test_0790feebb1.tar.gz'
     };
   });
 
-  after(function() {
-    return Promise.all([
-        'archives/test*',
-        'test/.tmp'
-    ].map(function(glob_pattern) {
-      return globAsync(glob_pattern)
-        .each(function(filename) {
-          // make every file writeable so the git packfiles can be removed
-          return fs.chmodAsync(filename, '755')
-            .then(function() { return fs.removeAsync(filename); });
-        })
-    }));
-  });
-
   describe('#make', function() {
+    after(function() {
+      return Promise.all([
+          'archives/test*',
+          'test/.tmp'
+      ].map(function(glob_pattern) {
+        return globAsync(glob_pattern)
+          .each(function(filename) {
+            // make every file writeable so the git packfiles can be removed
+            return fs.chmodAsync(filename, '755')
+              .then(function() { return fs.removeAsync(filename); });
+          })
+      }));
+    });
+
     it('creates an archive', function() {
       var modified_pkg = _.cloneDeep(pkg);
       modified_pkg.name = 'test_0000000001';
