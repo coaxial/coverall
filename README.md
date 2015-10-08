@@ -27,7 +27,7 @@ job from sending a coverall, you have to make my day and let me know!
 * Install NodeJS and npm:
 You will need a functional node install. If you don't have one, [watch a
 video](https://docs.npmjs.com/getting-started/installing-node), [download the installer](https://nodejs.org/en/) or
-use [Homebrew](https://nodejs.org/en/).
+use [Homebrew](https://nodejs.org/en/). Note that you need Node 0.12, it won't work with 0.10 or Node 4 (yet).
 
 * Clone the repo:
 
