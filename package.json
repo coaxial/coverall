@@ -19,6 +19,7 @@
   "devDependencies": {
     "better-console": "^0.2.4",
     "chai": "^3.2.0",
+    "chai-as-promised": "^5.1.0",
     "gulp": "^3.9.0",
     "gulp-eslint": "^1.0.0",
     "gulp-insert": "^0.5.0",
