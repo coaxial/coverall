@@ -21,11 +21,11 @@ describe('Archive', function() {
       name: 'test_0790feebb1',
       recipient_name: 'Test',
       files: {
-        letter: '../coverall_documents/coverletters/test/letter.tex',
-        resume: '../coverall_documents/resume/resume.tex'
+        letter: 'test/fixtures/coverall_documents/coverletters/test/letter.tex',
+        resume: 'test/fixtures/coverall_documents/resume/resume.tex'
       },
       compiled_files: {
-        package: '../coverall_documents/coverletters/test/test.pdf'
+        package: 'test/fixtures/coverall_documents/coverletters/test/test.pdf'
       },
       long_url: 'https://example-bucket.s3.amazonaws.com/test_0790feebb1.tar.gz'
     };
