@@ -1,21 +1,21 @@
 {
-  "name": "coverletter-composer",
+  "name": "coverall",
   "version": "0.0.1",
-  "description": "A set of Gulp tasks to compose and upload application packages sent to prospective employers",
+  "description": "Snail mail job applications for the internet-age, saving Canada Post one stamp at a time.",
   "main": "index.js",
   "scripts": {
-    "test": "gulp mocha"
+    "test": "mocha test"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Coaxial/coverletter-composer"
+    "url": "https://github.com/Coaxial/coverall"
   },
   "author": "Coaxial",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Coaxial/coverletter-composer/issues"
+    "url": "https://github.com/Coaxial/coverall/issues"
   },
-  "homepage": "https://github.com/Coaxial/coverletter-composer",
+  "homepage": "https://github.com/Coaxial/coverall",
   "devDependencies": {
     "better-console": "^0.2.4",
     "chai": "^3.2.0",
@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "async": "^1.4.2",
+    "aws-sdk": "^2.2.6",
     "bitly": "^3.0.1",
     "change-case": "^2.3.0",
     "lodash": "^3.10.1"
