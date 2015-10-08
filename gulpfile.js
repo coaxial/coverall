@@ -67,9 +67,16 @@ gulp.task('eslint-add-mocha-headers', function(cb) {
 });
 
 gulp.task('test', function(cb) {
-  return runSequence('clear-console',
-              'lint',
-              'mocha',
-              cb);
+  return runSequence(
+      'clear-console',
+      'lint',
+      'mocha',
+      cb);
 });
 
+gulp.task('travis', function(cb) {
+  return runSequence(
+      'lint',
+      'cov',
+      cb);
+});
