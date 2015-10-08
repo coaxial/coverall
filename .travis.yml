@@ -14,4 +14,4 @@ before_install:
 addons:
   apt:
     packages:
-      - libc6
+      - build-essential
