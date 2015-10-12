@@ -14,15 +14,17 @@ chai.use(chaiAsPromised);
 
 describe('composer', function() {
   describe('#getName', function() {
+    var options = {
+      // files: ['test/fixtures/coverall_documents/coverletters/test/letter.tex', 'test/fixtures/coverall_documents/resume/resume.tex'],
+      files: ['test/fixtures/coverall_documents/coverletters/test/letter.tex', 'test/fixtures/coverall_documents/resume/resume.tex'],
+      recipient_name: 'Test Recipient'
+    };
+
     it('does not care about options.files order', function() {
       var test_composer = composer.create();
-      var options = {
-        files: ['test/fixtures/coverall_documents/coverletters/test/letter.tex', 'test/fixtures/coverall_documents/resume/resume.tex'],
-        recipient_name: 'Test Recipient'
-      };
       var reversed_options = _.cloneDeep(options);
       reversed_options.files = reversed_options.files.reverse();
-      var test_result = [];
+      var result = [];
 
       return Promise.all([
           options,
@@ -30,12 +32,40 @@ describe('composer', function() {
       ].map(function(opt) {
         return test_composer.getName(opt)
           .then(function(name) {
-            test_result.push(name);
+            result.push(name);
           });
       }))
       .then(function() {
-        return expect(test_result[0]).to.eq(test_result[1]);
+        return expect(result[0]).to.eq(result[1]);
       });
+    });
+    
+    it('returns a different hash for every fileset', function() {
+      var test_composer = composer.create();
+      var opt_other_fileset = _.cloneDeep(options);
+      opt_other_fileset.files = ['test/fixtures/coverall_documents/resume/resume.tex'];
+      var result = [];
+
+      return Promise.all([
+          options,
+          opt_other_fileset
+      ].map(function(opt) {
+        return test_composer.getName(opt)
+          .then(function(name) {
+            return result.push(name);
+          });
+      }))
+      .then(function() {
+        return expect(result[0]).to.not.eq(result[1]);
+      });
+    });
+
+    it('param-cases the recipient\'s name', function() {
+      var test_composer = composer.create();
+      var opt = _.cloneDeep(options);
+      opt.files = ['test/fixtures/coverall_documents/resume/resume.tex'];
+      
+      return expect(test_composer.getName(options)).to.eventually.match(/^test-recipient/);
     });
   });
 
