@@ -75,7 +75,12 @@ describe('composer', function() {
       var test_composer = composer.create();
 
       return test_composer.compile()
-        .then(expect(spy.calledWith).to.eq('url.tex', 'http://bit.ly/DummY12'));
+        .then(function() {
+          return expect(spy.calledWith).to.eq('url.tex', 'http://bit.ly/DummY12')
+        })
+        .then(function() {
+          return fs.writeFile.restore();
+        });
     });
   });
 });
