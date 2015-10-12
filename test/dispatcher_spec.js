@@ -1,11 +1,13 @@
 /*eslint-env mocha */
 'use strict';
 
+var proxyquire = require('proxyquire');
 var chai = require('chai');
 var expect = chai.expect;
 var chaiAsPromised = require('chai-as-promised');
 var dispatcher = require('../lib/dispatcher').create();
 var nock = require('nock');
+var sinon = require('sinon');
 
 chai.use(chaiAsPromised);
 
@@ -56,6 +58,32 @@ describe('dispatcher', function() {
 
         return dispatcher.getShortUrl(options)
           .then(function(short_url) { expect(short_url).to.eq(expected); });
+    });
+  });
+
+  describe('#writeUrlTex', function() {
+    it('writes the given URL to the given file', function() {
+      var spy = sinon.spy();
+      var fsMock = {
+        writeFile: function(file, contents, callback) {
+          spy(file, contents);
+          callback();
+        }
+      };
+      var mockedDispatcher = proxyquire('../lib/dispatcher', {
+        'fs-extra': fsMock
+      });
+      var subject = mockedDispatcher.create();
+
+      var options = {
+        output_file: '.tmp/url.tex',
+        url: 'http://example.com/foo'
+      };
+      var tex_string = '\\url{' + options.url + '}';
+      return subject.writeUrlTex(options)
+        .then(function() {
+          return expect(spy.calledWith(options.output_file, tex_string)).to.eq(true);
+        });
     });
   });
 
