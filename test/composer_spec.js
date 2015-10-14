@@ -69,57 +69,156 @@ describe('composer', function() {
   });
 
   describe('#compile', function() {
-    var spy;
+    var fsMock;
     var child_processMock;
+    var spy;
     var subject;
     var options;
 
     beforeEach(function() {
       spy = sinon.spy();
+      fsMock = {
+        stat: function(file) {
+          // console.log('using mock');
+          var newer_date = new Date(2015, 10, 1);
+          var older_date = new Date(1986, 7, 25);
+
+          if (file.match(/older_tex_newer_pdf/)) {
+            if (file.match(/\.tex$/)) {
+              // console.log('returning an older tex');
+              return { mtime: older_date };
+            } else {
+              // console.log('returning a newer pdf');
+              return { mtime: newer_date };
+            }
+          }
+
+          if (file.match(/newer_tex_older_pdf/)) {
+            if (file.match(/\.tex/)) {
+              // console.log('returning a newer tex');
+              return { mtime: newer_date };
+            } else {
+              // console.log('returning an older pdf');
+              return { mtime: older_date };
+            }
+          }
+
+          if (file.match(/a_tex_no_pdf/)) {
+              // console.log('for', file);
+            if (file.match(/\.tex$/)) {
+              // console.log('returning a tex');
+              return { mtime: newer_date };
+            } else {
+              // console.log('returning a missing pdf');
+              throw new Error;
+            }
+          }
+        }
+      };
       child_processMock = {
         spawn: function(cmd, opt) {
           spy(cmd, opt);
           var emitter = new EventEmitter();
           setTimeout(function() {
-            emitter.emit('finish');
+            emitter.emit('end');
           }, 0);
           return emitter;
         }
       };
       var mockedComposer = proxyquire('../lib/composer', {
-        'child_process': child_processMock
+        'child_process': child_processMock,
+        'fs-extra': fsMock
       });
       subject = mockedComposer.create();
+
       options = {
-        coverletter: 'test/fixtures/coverall_documents/coverletters/test/letter.tex',
-        resume: 'test/fixtures/coverall_documents/resume/resume.tex'
+        missing_pdfs: {
+          coverletter: 'dummy_path/to/a_tex_no_pdf.tex',
+          resume: 'dummy_path/to/another/a_tex_no_pdf.tex'
+        },
+        // newer_pdfs: {
+        //   coverletter: 'dummy_path/to/older_tex_newer_pdf.tex',
+        //   resume: 'dummy_path/to/another/older_tex_newer_pdf.tex'
+        // },
+        // older_pdfs: {
+        //   coverletter: 'dummy_path/to/newer_tex_older_pdf.tex',
+        //   resume: 'dummy_path/to/another/newer_tex_older_pdf.tex'
+        // },
+        // newer_and_older: {
+        //   coverletter: 'dummy_path/to/newer_tex_older_pdf.tex',
+        //   resume: 'dummy_path/to/older_tex_newer_pdf.tex'
+        // },
+        // one_pdf_missing: {
+        //   coverletter: 'dummy_path/to/a_tex_no_pdf.tex',
+        //   resume: 'dummy_path/to/older_tex_newer_pdf.tex'
+        // }
       };
     });
 
-    it('calls pdflatex for every TeX file', function() {
-      return subject.compile(options)
-        .then(function() {
-          var expected_cwd = {
-            coverletter: path.resolve(options.coverletter, '..'),
-            resume: path.resolve(options.resume, '..')
-          };
-          debugger;
-          var results = spy.getCall(0).args.concat(spy.getCall(1).args);
-          var expected = ['pdflatex ' + options.coverletter, { cwd: expected_cwd.coverletter }].concat(['pdflatex ' + options.resume, { cwd: expected_cwd.resume }]);
-          return expect(results).to.eql(expected);
-        });
+    context('in any case', function() {
+      it('merges all the documents into a single PDF', function() {
+        var opt_array = [
+          options.missing_pdfs,
+          // options.newer_pdfs,
+          // options.older_pdfs,
+          // options.newer_and_older,
+          // options.one_pdf_missing
+        ];
+        var index_to_situation = [
+          'missing_pdfs',
+          'newer_pdfs',
+          'older_pdfs',
+          'newer_and_older',
+          'one_pdf_missing'
+        ];
+        var result = {};
+        var expected = {};
+        return Promise.all(_.forEach(opt_array, function gatherResults(opt, index) {
+          return subject.compile(opt)
+            .then(function() {
+              var outfile = path.resolve(path.dirname(opt.coverletter, path.basename(path.dirname(options.coverletter)))) + '.pdf';
+              var coverletter_pdf = path.resolve(opt.coverletter, '../letter.pdf')
+              var resume_pdf = path.resolve(opt.resume, '../resume.pdf');
+
+              var situation = index_to_situation[index];
+              result[situation] = spy.getCall(2) && spy.getCall(2).args;
+              expected[situation] = ['gs -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=' + outfile + ' ' + coverletter_pdf + ' ' + resume_pdf, undefined];
+              return Promise.resolve();
+            });
+        }))
+          .then(function() {
+            return expect(result).to.deep.equal(expected);
+          });
+      });
     });
 
-    it('merges all the documents into a single PDF', function() {
-      return subject.compile(options)
-        .then(function() {
-          var out_file = path.resolve(options.coverletter, '..', path.basename(path.resolve(options.coverletter, '..'))) + '.pdf';
-          var coverletter_pdf = path.resolve(options.coverletter, '../letter.pdf');
-          var resume_pdf = path.resolve(options.resume, '../resume.pdf');
-          var expected = ['gs -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=' + out_file + ' ' + coverletter_pdf + ' ' + resume_pdf, undefined];
-
-          return expect(spy.getCall(2).args).to.eql(expected);
-        });
+//         return subject.compile(options)
+//           .then(function() {
+//             var out_file = path.resolve(options.coverletter, '..', path.basename(path.resolve(options.coverletter, '..'))) + '.pdf';
+//             var coverletter_pdf = path.resolve(options.coverletter, '../letter.pdf');
+//             var resume_pdf = path.resolve(options.resume, '../resume.pdf');
+//             var expected = ['gs -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=' + out_file + ' ' + coverletter_pdf + ' ' + resume_pdf, undefined];
+// 
+//             return expect(spy.getCall(2).args).to.eql(expected);
+//           });
+//       });
+    context('when all PDF files are missing', function() {
+      it('generates the missing PDF files', function() {
+        console.log('\n\n\n\n\n**********************\n');
+        console.log('before test', JSON.stringify(spy.args, null, 4));
+        var opt = options.missing_pdfs;
+        return subject.compile(opt)
+          .then(function() {
+            var expected_cwd = {
+              coverletter: path.resolve(path.dirname(opt.coverletter)),
+              resume: path.resolve(path.dirname(opt.resume))
+            };
+            var results = spy.getCall(0).args.concat(spy.getCall(1).args);
+            var expected = ['pdflatex ' + opt.coverletter, { cwd: expected_cwd.coverletter }].concat(['pdflatex ' + opt.resume, { cwd: expected_cwd.resume }]);
+            console.log('test results:', JSON.stringify(spy.args, null, 4));
+            return expect(results).to.eql(expected);
+          });
+      });
     });
   });
 });
