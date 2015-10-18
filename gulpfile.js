@@ -1,5 +1,5 @@
 var gulp = require('gulp');
-var mocha = require('gulp-mocha');
+var mocha = require('gulp-spawn-mocha');
 var gutil = require('gulp-util');
 var eslint = require('gulp-eslint');
 var console = require('better-console');
