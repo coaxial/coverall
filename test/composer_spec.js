@@ -180,7 +180,6 @@ describe('composer', function() {
 
       it('calls `gs` with the right arguments', function() {
         var opt = options.missing_pdfs;
-        debugger;
         var recipient_name = path.basename(path.resolve(path.dirname(opt.coverletter)));
         var output_pdf = path.resolve(path.dirname(opt.coverletter), recipient_name) + '.pdf';
         var coverletter_pdf = path.resolve(path.dirname(opt.coverletter), path.basename(opt.coverletter, path.extname(opt.coverletter))) + '.pdf';
@@ -256,7 +255,6 @@ describe('composer', function() {
 
         return subject.compile(opt)
           .then(function() {
-            debugger;
             return expect(spy.pdflatex.args).to.eql(expected);
           });
       });
