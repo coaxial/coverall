@@ -180,7 +180,12 @@ describe('composer', function() {
 
       it('calls `gs` with the right arguments', function() {
         var opt = options.missing_pdfs;
-        var expected = ['gs -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=/Users/hfp/code/coverall/dummy_path/letters/company/company.pdf /Users/hfp/code/coverall/dummy_path/letters/company/a_tex_no_pdf.pdf /Users/hfp/code/coverall/dummy_path/resume/a_tex_no_pdf.pdf', undefined];
+        debugger;
+        var recipient_name = path.basename(path.resolve(path.dirname(opt.coverletter)));
+        var output_pdf = path.resolve(path.dirname(opt.coverletter), recipient_name) + '.pdf';
+        var coverletter_pdf = path.resolve(path.dirname(opt.coverletter), path.basename(opt.coverletter, path.extname(opt.coverletter))) + '.pdf';
+        var resume_pdf = path.resolve(path.dirname(opt.resume), path.basename(opt.resume, path.extname(opt.resume))) + '.pdf';
+        var expected = ['gs -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=' + output_pdf + ' ' + coverletter_pdf + ' ' + resume_pdf, undefined];
 
         return subject.compile(opt)
           .then(function() {
