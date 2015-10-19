@@ -78,6 +78,22 @@ gulp.task('test', function(cb) {
 
 gulp.task('travis', function() {
   return runSequence(
-      'lint',
-      'cov');
+      'travis-lint',
+      'travis-cov');
+});
+
+gulp.task('travis-lint', function() {
+  return gulp.src(all_files)
+    .pipe(eslint({ useEslintrc: true }))
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
+
+});
+  
+gulp.task('travis-cov', function() {
+  return gulp.src([spec_files, integration_files])
+    .pipe(mocha({
+      R: 'dot',
+      istanbul: true
+    }));
 });
