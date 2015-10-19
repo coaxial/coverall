@@ -4,7 +4,8 @@ var gutil = require('gulp-util');
 var eslint = require('gulp-eslint');
 var console = require('better-console');
 var runSequence = require('run-sequence');
-var istanbul = require('gulp-istanbul');
+var gulpMocha = require('gulp-mocha'); // for the 'cov' task, offers more config options with istanbul
+var istanbul = require('gulp-istanbul'); // for the 'cov' task
 var insert = require('gulp-insert');
 
 var spec_files = 'test/**/*_spec.js';
@@ -26,7 +27,7 @@ gulp.task('cov', function(cb) {
     .pipe(istanbul.hookRequire())
     .on('finish', function () {
       gulp.src([spec_files, integration_files])
-        .pipe(mocha({ reporter: 'dot' }))
+        .pipe(gulpMocha({ reporter: 'dot' }))
         .on('error', function(err) {
           console.log('Error in tests, not checking coverage.');
           return cb(err);
