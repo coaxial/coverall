@@ -45,6 +45,6 @@
     "bluebird": "^2.10.2",
     "change-case": "^2.3.0",
     "fs-extra": "^0.24.0",
-    "lodash": "^3.10.1"
+    "lodash": "^4.17.19"
   }
 }
